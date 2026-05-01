@@ -1,0 +1,72 @@
+{
+  "name": "audunru/reporting-api",
+  "description": "Receive and handle W3C Reporting API and CSP violation reports in Laravel",
+  "keywords": [
+    "reporting-api",
+    "csp",
+    "content-security-policy",
+    "laravel",
+    "reporting"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Audun Rundberg",
+      "email": "audun@rundberg.no"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "laravel/framework": "^13.0",
+    "spatie/laravel-package-tools": "^1.9"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.0",
+    "orchestra/testbench": "^11.0",
+    "php-coveralls/php-coveralls": "^2.2",
+    "phpmd/phpmd": "^2.10",
+    "phpunit/phpunit": "^12.0",
+    "roave/security-advisories": "dev-latest"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "autoload": {
+    "psr-4": {
+      "audunru\\ReportingApi\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "audunru\\ReportingApi\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "audunru\\ReportingApi\\ReportingApiServiceProvider"
+      ]
+    }
+  },
+  "scripts": {
+    "test": [
+      "php ./vendor/bin/phpunit"
+    ],
+    "test-with-coverage": [
+      "XDEBUG_MODE=coverage php ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml"
+    ],
+    "fix": [
+      "./vendor/bin/pint"
+    ],
+    "verify": [
+      "./vendor/bin/pint --test",
+      "php ./vendor/bin/phpmd config,src,tests ansi phpmd-ruleset.xml",
+      "php ./vendor/bin/phpunit"
+    ]
+  }
+}
