@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\CspViolationReportBody;
 
+/**
+ * Content Security Policy violation report sent by the browser to a reporting endpoint.
+ *
+ * @see https://www.w3.org/TR/CSP3/
+ */
 class CspViolationReport extends Report
 {
     public function __construct(

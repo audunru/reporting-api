@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\NetworkErrorReportBody;
 
+/**
+ * Network Error Logging report sent by the browser to a reporting endpoint.
+ *
+ * @see https://www.w3.org/TR/network-error-logging/
+ */
 class NetworkErrorReport extends Report
 {
     public function __construct(

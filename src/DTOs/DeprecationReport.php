@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\DeprecationReportBody;
 
+/**
+ * Deprecation report sent by the browser to a reporting endpoint.
+ *
+ * @see https://wicg.github.io/deprecation-reporting/
+ */
 class DeprecationReport extends Report
 {
     public function __construct(

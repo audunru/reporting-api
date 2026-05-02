@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\DocumentPolicyViolationReportBody;
 
+/**
+ * Document Policy violation report sent by the browser to a reporting endpoint.
+ *
+ * @see https://wicg.github.io/document-policy/
+ */
 class DocumentPolicyViolationReport extends Report
 {
     public function __construct(

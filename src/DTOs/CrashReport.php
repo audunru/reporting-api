@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\CrashReportBody;
 
+/**
+ * Crash report sent by the browser to a reporting endpoint.
+ *
+ * @see https://wicg.github.io/crash-reporting/
+ */
 class CrashReport extends Report
 {
     public function __construct(

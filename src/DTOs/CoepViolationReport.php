@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\CoepViolationReportBody;
 
+/**
+ * Cross-Origin Embedder Policy violation report sent by the browser to a reporting endpoint.
+ *
+ * @see https://html.spec.whatwg.org/multipage/origin.html
+ */
 class CoepViolationReport extends Report
 {
     public function __construct(

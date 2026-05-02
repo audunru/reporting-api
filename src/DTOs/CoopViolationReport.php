@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\CoopViolationReportBody;
 
+/**
+ * Cross-Origin Opener Policy violation report sent by the browser to a reporting endpoint.
+ *
+ * @see https://html.spec.whatwg.org/multipage/browsers.html
+ */
 class CoopViolationReport extends Report
 {
     public function __construct(

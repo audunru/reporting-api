@@ -4,6 +4,11 @@ namespace audunru\ReportingApi\DTOs;
 
 use audunru\ReportingApi\DTOs\Bodies\InterventionReportBody;
 
+/**
+ * Intervention report sent by the browser to a reporting endpoint.
+ *
+ * @see https://wicg.github.io/intervention-reporting/
+ */
 class InterventionReport extends Report
 {
     public function __construct(

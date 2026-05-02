@@ -55,5 +55,7 @@
       <property name="exceptions" value="id,q,w,i,j,v,e,f,fp" />
     </properties>
   </rule>
-  <rule ref="rulesets/unusedcode.xml"/>
+  <rule ref="rulesets/unusedcode.xml">
+    <exclude name="UnusedFormalParameter"/>
+  </rule>
 </ruleset>
