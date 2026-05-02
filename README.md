@@ -111,19 +111,20 @@ Body classes are plain PHP objects with nullable readonly properties matching th
 | `DocumentPolicyViolationReceived` | `document-policy-violation` type |
 | `GenericReportReceived` | Any unrecognized type |
 
-### Logging CSP violations
+### Built-in listeners
 
-To log CSP violations, create a listener in your application. Browser extensions inject scripts and styles that routinely trigger CSP reports — filter them out before logging to avoid noise:
+The package ships two ready-made listeners you can register directly or extend. Neither is registered automatically.
+
+**`LogCspViolation`** logs CSP violations as `warning`. Browser extensions routinely trigger CSP reports — override `shouldExclude()` to filter that noise:
 
 ```php
-// app/Listeners/LogCspViolation.php
+// app/Listeners/MyCspViolationListener.php
 namespace App\Listeners;
 
-use audunru\ReportingApi\DTOs\Bodies\CspViolationReportBody;
-use audunru\ReportingApi\Events\CspViolationReceived;
-use Illuminate\Support\Facades\Log;
+use audunru\ReportingApi\DTOs\CspViolationReport;
+use audunru\ReportingApi\Listeners\LogCspViolation;
 
-class LogCspViolation
+class MyCspViolationListener extends LogCspViolation
 {
     private const EXTENSION_SCHEMES = [
         'chrome-extension://',
@@ -131,24 +132,9 @@ class LogCspViolation
         'safari-extension://',
     ];
 
-    public function handle(CspViolationReceived $event): void
+    protected function shouldExclude(CspViolationReport $report): bool
     {
-        $body = $event->getReport()->body;
-
-        if ($this->isExtensionNoise($body)) {
-            return;
-        }
-
-        Log::warning('CSP violation: {directive} blocked {url}', [
-            'directive' => $body->effectiveDirective,
-            'url'       => $body->blockedURL,
-            'page'      => $event->getReport()->url,
-        ]);
-    }
-
-    private function isExtensionNoise(CspViolationReportBody $body): bool
-    {
-        $blocked = $body->blockedURL ?? '';
+        $blocked = $report->body->blockedURL ?? '';
 
         foreach (self::EXTENSION_SCHEMES as $scheme) {
             if (str_starts_with($blocked, $scheme)) {
@@ -161,15 +147,45 @@ class LogCspViolation
 }
 ```
 
-Register it in your `EventServiceProvider`:
+**`LogReport`** logs any report type as `info`, with the full raw report in the log context. Useful as a catch-all or for debugging. Override `shouldExclude()` to skip specific types:
 
 ```php
+// app/Listeners/MyReportListener.php
+namespace App\Listeners;
+
+use audunru\ReportingApi\DTOs\Report;
+use audunru\ReportingApi\Listeners\LogReport;
+
+class MyReportListener extends LogReport
+{
+    protected function shouldExclude(Report $report): bool
+    {
+        return $report->type === 'csp-violation'; // handled separately
+    }
+}
+```
+
+Register in your `EventServiceProvider`:
+
+```php
+use audunru\ReportingApi\Contracts\ReportEvent;
 use audunru\ReportingApi\Events\CspViolationReceived;
-use App\Listeners\LogCspViolation;
+use App\Listeners\MyCspViolationListener;
+use App\Listeners\MyReportListener;
 
 protected $listen = [
-    CspViolationReceived::class => [LogCspViolation::class],
+    CspViolationReceived::class => [MyCspViolationListener::class],
+    ReportEvent::class          => [MyReportListener::class],
 ];
+```
+
+Both listeners log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
+
+```php
+class MyCspViolationListener extends LogCspViolation
+{
+    protected string $channel = 'security';
+}
 ```
 
 ## Configuration
