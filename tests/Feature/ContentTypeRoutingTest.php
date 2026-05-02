@@ -59,4 +59,24 @@ class ContentTypeRoutingTest extends TestCase
         $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json; charset=utf-8'], json_encode([]))
             ->assertNoContent();
     }
+
+    public function test_reports_json_content_type_with_invalid_json_returns_bad_request(): void
+    {
+        Event::fake([GenericReportReceived::class]);
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json'], '{invalid')
+            ->assertStatus(400);
+
+        Event::assertNotDispatched(GenericReportReceived::class);
+    }
+
+    public function test_csp_report_content_type_with_invalid_json_returns_bad_request(): void
+    {
+        Event::fake([CspViolationReceived::class]);
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/csp-report'], '{invalid')
+            ->assertStatus(400);
+
+        Event::assertNotDispatched(CspViolationReceived::class);
+    }
 }

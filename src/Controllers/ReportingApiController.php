@@ -14,7 +14,11 @@ use audunru\ReportingApi\Events\NetworkErrorReceived;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use JsonException;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ReportingApiController extends Controller
 {
     public function report(Request $request): Response
@@ -29,12 +33,16 @@ class ReportingApiController extends Controller
             return $this->handleLegacyCspReport($request);
         }
 
-        return response('', 400);
+        return response('', Response::HTTP_BAD_REQUEST);
     }
 
     private function handleModernReports(Request $request): Response
     {
-        $reports = json_decode($request->getContent() ?: '[]', true);
+        try {
+            $reports = json_decode($request->getContent() ?: '[]', true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return response('', Response::HTTP_BAD_REQUEST);
+        }
 
         if (is_array($reports)) {
             foreach ($reports as $report) {
@@ -46,12 +54,16 @@ class ReportingApiController extends Controller
             }
         }
 
-        return response('', 204);
+        return response('', Response::HTTP_NO_CONTENT);
     }
 
     private function handleLegacyCspReport(Request $request): Response
     {
-        $payload = json_decode($request->getContent() ?: '{}', true);
+        try {
+            $payload = json_decode($request->getContent() ?: '{}', true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return response('', Response::HTTP_BAD_REQUEST);
+        }
 
         if (is_array($payload) && isset($payload['csp-report'])) {
             $normalized = [
@@ -61,7 +73,7 @@ class ReportingApiController extends Controller
             event(new CspViolationReceived($normalized));
         }
 
-        return response('', 204);
+        return response('', Response::HTTP_NO_CONTENT);
     }
 
     private function makeEvent(array $report): object
