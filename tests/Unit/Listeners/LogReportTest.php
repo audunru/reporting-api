@@ -26,7 +26,9 @@ class LogReportTest extends TestCase
 
         (new LogReport)->handle($event);
 
-        $spy->shouldHaveReceived('info')->once();
+        $spy->shouldHaveReceived('info')
+            ->once()
+            ->with('deprecation report received at https://example.test/page', \Mockery::type('array'));
     }
 
     public function test_skips_logging_when_excluded(): void

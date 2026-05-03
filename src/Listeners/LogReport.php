@@ -18,9 +18,7 @@ class LogReport
             return;
         }
 
-        Log::channel($this->channel)->info('{type} report received at {url}', [
-            'type' => $report->type,
-            'url' => $report->url,
+        Log::channel($this->channel)->info("{$report->type} report received at {$report->url}", [
             'report' => $event->getRawReport(),
         ]);
     }

@@ -26,7 +26,9 @@ class LogCspViolationTest extends TestCase
 
         (new LogCspViolation)->handle($event);
 
-        $spy->shouldHaveReceived('warning')->once();
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with('CSP violation: script-src blocked https://evil.example/script.js', ['page' => 'https://example.test/page']);
     }
 
     public function test_skips_logging_when_excluded(): void
