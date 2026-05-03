@@ -46,6 +46,31 @@ Content-Security-Policy: default-src 'self'; report-to default
 
 The modern format supports additional report types beyond CSP violations (deprecations, network errors, crashes, etc.).
 
+With [spatie/laravel-csp](https://github.com/spatie/laravel-csp), add `Directive::REPORT_TO` in your Policy class:
+
+```php
+use Spatie\Csp\Directive;
+use Spatie\Csp\Policies\Basic;
+
+class MyPolicy extends Basic
+{
+    public function configure(): void
+    {
+        parent::configure();
+        $this->add(Directive::REPORT_TO, 'default');
+    }
+}
+```
+
+Also apply the `reporting-endpoints` middleware (see [Middleware](#middleware)) so the `Reporting-Endpoints` header is sent to browsers alongside the CSP header.
+
+For legacy browser fallback (Firefox and Safari do not support `report-to`), also set `report_uri` in `config/csp.php`. Modern browsers ignore `report-uri` when `report-to` is present, so each browser uses the right format automatically:
+
+```php
+// config/csp.php
+'report_uri' => env('CSP_REPORT_URI', '/reports'),
+```
+
 ## Getting started
 
 When a report arrives the package dispatches a Laravel event based on the report type. The package ships two ready-made listeners — `LogCspViolation` and `LogReport` — that you can register directly in `AppServiceProvider::boot()`:
