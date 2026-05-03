@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/audunru/reporting-api/compare/v1.2.1...v1.2.2) (2026-05-03)
+
+
+### Bug Fixes
+
+* use PHP string interpolation in log messages ([#8](https://github.com/audunru/reporting-api/issues/8)) ([3ba58d9](https://github.com/audunru/reporting-api/commit/3ba58d9874d4a49b47f91e3f62c5bd3dc8218d32)), closes [#2](https://github.com/audunru/reporting-api/issues/2) [#3](https://github.com/audunru/reporting-api/issues/3)
+
 ## [1.2.1](https://github.com/audunru/reporting-api/compare/v1.2.0...v1.2.1) (2026-05-03)
 
 
