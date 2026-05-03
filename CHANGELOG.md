@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/audunru/reporting-api/compare/v1.1.0...v1.2.0) (2026-05-03)
+
+
+### Features
+
+* add middleware to set Reporting-Endpoints response header ([#6](https://github.com/audunru/reporting-api/issues/6)) ([c6ebea9](https://github.com/audunru/reporting-api/commit/c6ebea962fabb9d3547f7b3ca7fedb9fcbcb4742))
+
 # [1.1.0](https://github.com/audunru/reporting-api/compare/v1.0.0...v1.1.0) (2026-05-03)
 
 
