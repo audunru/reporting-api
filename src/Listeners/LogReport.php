@@ -18,13 +18,13 @@ class LogReport
             return;
         }
 
-        Log::channel($this->channel)->info("{$report->type} report received at {$report->url}", [
+        Log::channel($this->channel)->warning("{$report->type} report received at {$report->url}", [
             'report' => $event->getRawReport(),
         ]);
     }
 
     protected function shouldExclude(Report $report): bool
     {
-        return false;
+        return $report->type === 'csp-violation';
     }
 }

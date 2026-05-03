@@ -3,6 +3,7 @@
 namespace audunru\ReportingApi\Tests\Unit\Listeners;
 
 use audunru\ReportingApi\DTOs\Report;
+use audunru\ReportingApi\Events\CspViolationReceived;
 use audunru\ReportingApi\Events\DeprecationReportReceived;
 use audunru\ReportingApi\Listeners\LogReport;
 use audunru\ReportingApi\Tests\TestCase;
@@ -26,9 +27,22 @@ class LogReportTest extends TestCase
 
         (new LogReport)->handle($event);
 
-        $spy->shouldHaveReceived('info')
+        $spy->shouldHaveReceived('warning')
             ->once()
             ->with('deprecation report received at https://example.test/page', \Mockery::type('array'));
+    }
+
+    public function test_skips_csp_violations_by_default(): void
+    {
+        $spy = Log::spy();
+
+        (new LogReport)->handle(new CspViolationReceived([
+            'type' => 'csp-violation',
+            'url' => 'https://example.test/page',
+            'body' => [],
+        ]));
+
+        $spy->shouldNotHaveReceived('channel');
     }
 
     public function test_skips_logging_when_excluded(): void
