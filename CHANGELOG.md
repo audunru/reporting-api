@@ -1,3 +1,17 @@
+# [2.0.0](https://github.com/audunru/reporting-api/compare/v1.2.2...v2.0.0) (2026-05-03)
+
+
+### Features
+
+* exclude CSP violations from LogReport by default and log at warning level ([#12](https://github.com/audunru/reporting-api/issues/12)) ([680e885](https://github.com/audunru/reporting-api/commit/680e8858bd2889bcacdb0e2e34af74193642c0cb)), closes [#11](https://github.com/audunru/reporting-api/issues/11)
+
+
+### BREAKING CHANGES
+
+* LogReport no longer logs CSP violations by default, and log
+level changed from info to warning. Override shouldExclude() returning false
+to restore the previous CSP logging behavior.
+
 ## [1.2.2](https://github.com/audunru/reporting-api/compare/v1.2.1...v1.2.2) (2026-05-03)
 
 
