@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/audunru/reporting-api/compare/v1.2.0...v1.2.1) (2026-05-03)
+
+
+### Bug Fixes
+
+* exclude all CSRF middleware variants from reports route ([#7](https://github.com/audunru/reporting-api/issues/7)) ([2d57754](https://github.com/audunru/reporting-api/commit/2d577542c2f4e59427bfb94d7f451e859dcc3dbf)), closes [#2](https://github.com/audunru/reporting-api/issues/2)
+
 # [1.2.0](https://github.com/audunru/reporting-api/compare/v1.1.0...v1.2.0) (2026-05-03)
 
 
