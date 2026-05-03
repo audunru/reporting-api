@@ -1,6 +1,7 @@
-# reporting-api
+# Receive [W3C Reporting API](https://www.w3.org/TR/reporting/) and [CSP violation](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) reports in Laravel
 
-Receive and handle [W3C Reporting API](https://www.w3.org/TR/reporting/) and [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) violation reports in Laravel.
+[![Build Status](https://github.com/audunru/reporting-api/actions/workflows/validate.yml/badge.svg)](https://github.com/audunru/reporting-api/actions/workflows/validate.yml)
+[![Coverage Status](https://coveralls.io/repos/github/audunru/reporting-api/badge.svg?branch=main)](https://coveralls.io/github/audunru/reporting-api?branch=main)
 
 Browsers send batched reports — CSP violations, deprecations, network errors, crashes, and more — to a configured endpoint. This package registers that endpoint, decodes the payload, and dispatches Laravel events for each report type.
 
@@ -45,77 +46,38 @@ Content-Security-Policy: default-src 'self'; report-to default
 
 The modern format supports additional report types beyond CSP violations (deprecations, network errors, crashes, etc.).
 
-## Listening for events
+## Getting started
 
-When a report arrives the package dispatches a specific Laravel event based on the report type. Register your own listeners in your application's `EventServiceProvider`:
+When a report arrives the package dispatches a Laravel event based on the report type. The package ships two ready-made listeners — `LogCspViolation` and `LogReport` — that you can register directly in `AppServiceProvider::boot()`:
 
 ```php
+use audunru\ReportingApi\Contracts\ReportEvent;
 use audunru\ReportingApi\Events\CspViolationReceived;
-use audunru\ReportingApi\Events\DeprecationReportReceived;
+use audunru\ReportingApi\Listeners\LogCspViolation;
+use audunru\ReportingApi\Listeners\LogReport;
+use Illuminate\Support\Facades\Event;
 
-protected $listen = [
-    CspViolationReceived::class => [
-        YourCspViolationListener::class,
-    ],
-    DeprecationReportReceived::class => [
-        YourDeprecationListener::class,
-    ],
-];
+public function boot(): void
+{
+    Event::listen(CspViolationReceived::class, LogCspViolation::class);
+    Event::listen(ReportEvent::class, LogReport::class);
+}
 ```
 
-All event classes implement `audunru\ReportingApi\Contracts\ReportEvent` and expose:
+`LogCspViolation` logs CSP violations as `warning`. `LogReport` logs every other report type as `info`, with the full raw report in the log context. Neither is registered automatically.
 
-| Method | Returns |
-|--------|---------|
-| `getReport()` | Typed report DTO (e.g. `CspViolationReport`) |
-| `getRawReport()` | Raw report array as received from the browser |
+Both log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
 
-### Report DTOs
+```php
+class MyCspViolationListener extends LogCspViolation
+{
+    protected string $channel = 'security';
+}
+```
 
-`getReport()` returns a typed DTO that extends `audunru\ReportingApi\DTOs\Report`, with properties common to all report types:
+### Filtering noise with `shouldExclude()`
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `type` | `string` | W3C report type (e.g. `'csp-violation'`) |
-| `url` | `?string` | URL of the page that generated the report |
-| `age` | `?int` | Milliseconds between report generation and sending |
-| `userAgent` | `?string` | Browser user agent string |
-
-Each specific report DTO also has a typed `body` property whose class matches the report type:
-
-| Event | `getReport()` returns | `body` type |
-|---|---|---|
-| `CspViolationReceived` | `CspViolationReport` | `CspViolationReportBody` |
-| `DeprecationReportReceived` | `DeprecationReport` | `DeprecationReportBody` |
-| `InterventionReportReceived` | `InterventionReport` | `InterventionReportBody` |
-| `CrashReportReceived` | `CrashReport` | `CrashReportBody` |
-| `NetworkErrorReceived` | `NetworkErrorReport` | `NetworkErrorReportBody` |
-| `CoepReportReceived` | `CoepViolationReport` | `CoepViolationReportBody` |
-| `CoopReportReceived` | `CoopViolationReport` | `CoopViolationReportBody` |
-| `DocumentPolicyViolationReceived` | `DocumentPolicyViolationReport` | `DocumentPolicyViolationReportBody` |
-| `GenericReportReceived` | `GenericReport` | `?array` |
-
-Body classes are plain PHP objects with nullable readonly properties matching the W3C specification for that report type. For example, `CspViolationReportBody` exposes `blockedURL`, `effectiveDirective`, `disposition`, `documentURL`, `originalPolicy`, and so on.
-
-### Dispatched events
-
-| Event class | Trigger |
-|---|---|
-| `CspViolationReceived` | `csp-violation` type (modern) or `application/csp-report` (legacy) |
-| `DeprecationReportReceived` | `deprecation` type |
-| `InterventionReportReceived` | `intervention` type |
-| `CrashReportReceived` | `crash` type |
-| `NetworkErrorReceived` | `network-error` type |
-| `CoepReportReceived` | `coep` type |
-| `CoopReportReceived` | `coop` type |
-| `DocumentPolicyViolationReceived` | `document-policy-violation` type |
-| `GenericReportReceived` | Any unrecognized type |
-
-### Built-in listeners
-
-The package ships two ready-made listeners you can register directly or extend. Neither is registered automatically.
-
-**`LogCspViolation`** logs CSP violations as `warning`. Browser extensions routinely trigger CSP reports — override `shouldExclude()` to filter that noise:
+Browser extensions routinely trigger CSP reports. Override `shouldExclude()` in a subclass to filter them out:
 
 ```php
 // app/Listeners/MyCspViolationListener.php
@@ -147,7 +109,7 @@ class MyCspViolationListener extends LogCspViolation
 }
 ```
 
-**`LogReport`** logs any report type as `info`, with the full raw report in the log context. Useful as a catch-all or for debugging. Override `shouldExclude()` to skip specific types:
+`LogReport` supports the same pattern via its `Report` base type:
 
 ```php
 // app/Listeners/MyReportListener.php
@@ -165,26 +127,19 @@ class MyReportListener extends LogReport
 }
 ```
 
-Register in your `EventServiceProvider`:
+Register your subclasses the same way:
 
 ```php
 use audunru\ReportingApi\Contracts\ReportEvent;
 use audunru\ReportingApi\Events\CspViolationReceived;
 use App\Listeners\MyCspViolationListener;
 use App\Listeners\MyReportListener;
+use Illuminate\Support\Facades\Event;
 
-protected $listen = [
-    CspViolationReceived::class => [MyCspViolationListener::class],
-    ReportEvent::class          => [MyReportListener::class],
-];
-```
-
-Both listeners log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
-
-```php
-class MyCspViolationListener extends LogCspViolation
+public function boot(): void
 {
-    protected string $channel = 'security';
+    Event::listen(CspViolationReceived::class, MyCspViolationListener::class);
+    Event::listen(ReportEvent::class, MyReportListener::class);
 }
 ```
 
@@ -231,3 +186,55 @@ php artisan vendor:publish --tag=reporting-api-config
 |-----|---------|---------|-------------|
 | `path` | `REPORTING_API_PATH` | `/reports` | URL path of the report endpoint |
 | `throttle` | `REPORTING_API_THROTTLE` | `60,1` | Throttle value — named limiter or `attempts,minutes` |
+
+## Reference
+
+### Dispatched events
+
+| Event class | Trigger |
+|---|---|
+| `CspViolationReceived` | `csp-violation` type (modern) or `application/csp-report` (legacy) |
+| `DeprecationReportReceived` | `deprecation` type |
+| `InterventionReportReceived` | `intervention` type |
+| `CrashReportReceived` | `crash` type |
+| `NetworkErrorReceived` | `network-error` type |
+| `CoepReportReceived` | `coep` type |
+| `CoopReportReceived` | `coop` type |
+| `DocumentPolicyViolationReceived` | `document-policy-violation` type |
+| `GenericReportReceived` | Any unrecognized type |
+
+### Event interface
+
+All event classes implement `audunru\ReportingApi\Contracts\ReportEvent` and expose:
+
+| Method | Returns |
+|--------|---------|
+| `getReport()` | Typed report DTO (e.g. `CspViolationReport`) |
+| `getRawReport()` | Raw report array as received from the browser |
+
+### Report DTOs
+
+`getReport()` returns a typed DTO that extends `audunru\ReportingApi\DTOs\Report`, with properties common to all report types:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `type` | `string` | W3C report type (e.g. `'csp-violation'`) |
+| `url` | `?string` | URL of the page that generated the report |
+| `age` | `?int` | Milliseconds between report generation and sending |
+| `userAgent` | `?string` | Browser user agent string |
+
+Each specific report DTO also has a typed `body` property whose class matches the report type:
+
+| Event | `getReport()` returns | `body` type |
+|---|---|---|
+| `CspViolationReceived` | `CspViolationReport` | `CspViolationReportBody` |
+| `DeprecationReportReceived` | `DeprecationReport` | `DeprecationReportBody` |
+| `InterventionReportReceived` | `InterventionReport` | `InterventionReportBody` |
+| `CrashReportReceived` | `CrashReport` | `CrashReportBody` |
+| `NetworkErrorReceived` | `NetworkErrorReport` | `NetworkErrorReportBody` |
+| `CoepReportReceived` | `CoepViolationReport` | `CoepViolationReportBody` |
+| `CoopReportReceived` | `CoopViolationReport` | `CoopViolationReportBody` |
+| `DocumentPolicyViolationReceived` | `DocumentPolicyViolationReport` | `DocumentPolicyViolationReportBody` |
+| `GenericReportReceived` | `GenericReport` | `?array` |
+
+Body classes are plain PHP objects with nullable readonly properties matching the W3C specification for that report type. For example, `CspViolationReportBody` exposes `blockedURL`, `effectiveDirective`, `disposition`, `documentURL`, `originalPolicy`, and so on.
