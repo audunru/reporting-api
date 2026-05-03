@@ -188,6 +188,37 @@ class MyCspViolationListener extends LogCspViolation
 }
 ```
 
+## Middleware
+
+The package registers a `reporting-endpoints` middleware alias that adds the `Reporting-Endpoints` header to responses. Browsers use this header to discover where to POST their reports.
+
+Apply it to specific routes or route groups:
+
+```php
+Route::middleware('reporting-endpoints')->group(function () {
+    Route::get('/', HomeController::class);
+});
+```
+
+To add it globally to all web routes (Laravel 11+, `bootstrap/app.php`):
+
+```php
+use audunru\ReportingApi\Http\Middleware\AddReportingEndpointsHeader;
+use Illuminate\Foundation\Configuration\Middleware;
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->web(append: [
+        AddReportingEndpointsHeader::class,
+    ]);
+})
+```
+
+The header value uses the `path` from your config:
+
+```
+Reporting-Endpoints: default="/reports"
+```
+
 ## Configuration
 
 Publish the config file to customise the endpoint path and throttle limit:
