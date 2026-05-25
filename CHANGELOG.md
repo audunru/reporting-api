@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/audunru/reporting-api/compare/v2.0.0...v2.1.0) (2026-05-25)
+
+
+### Features
+
+* add Trivy security scan workflow ([#17](https://github.com/audunru/reporting-api/issues/17)) ([5e6700e](https://github.com/audunru/reporting-api/commit/5e6700ee5903b288a2a4e99eece61237dc298211))
+
 # [2.0.0](https://github.com/audunru/reporting-api/compare/v1.2.2...v2.0.0) (2026-05-03)
 
 
