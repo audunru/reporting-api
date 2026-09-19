@@ -1,3 +1,19 @@
+# [3.0.0](https://github.com/audunru/reporting-api/compare/v2.2.0...v3.0.0) (2026-09-19)
+
+
+* feat(csp)!: exclude non-conformant CSP reports by default ([#36](https://github.com/audunru/reporting-api/issues/36)) ([eca1afd](https://github.com/audunru/reporting-api/commit/eca1afd314b15ca96bb9bb54d55258ab096fc3e3)), closes [#33](https://github.com/audunru/reporting-api/issues/33)
+* feat(csp)!: remove page from CSP violation log context ([#35](https://github.com/audunru/reporting-api/issues/35)) ([4153ba2](https://github.com/audunru/reporting-api/commit/4153ba2ad93b7c41126a64913f234d88ec49f13e))
+
+
+### BREAKING CHANGES
+
+* LogCspViolation::shouldExclude() now excludes reports
+without both effectiveDirective and blockedURL. Subclasses that
+override shouldExclude() should call parent::shouldExclude() first to
+keep the filter.
+* LogCspViolation no longer sets context['page']. The
+page URL is in the log message and in context['report']['url'].
+
 # [2.2.0](https://github.com/audunru/reporting-api/compare/v2.1.0...v2.2.0) (2026-09-19)
 
 
