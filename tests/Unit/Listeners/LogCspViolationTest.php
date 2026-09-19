@@ -15,20 +15,55 @@ class LogCspViolationTest extends TestCase
         $spy = Log::spy();
         $spy->shouldReceive('channel')->andReturnSelf();
 
-        $event = new CspViolationReceived([
+        $report = [
             'type' => 'csp-violation',
             'url' => 'https://example.test/page',
             'body' => [
                 'effectiveDirective' => 'script-src',
                 'blockedURL' => 'https://evil.example/script.js',
             ],
-        ]);
+        ];
 
-        (new LogCspViolation)->handle($event);
+        (new LogCspViolation)->handle(new CspViolationReceived($report));
 
         $spy->shouldHaveReceived('warning')
             ->once()
-            ->with('CSP violation: script-src blocked https://evil.example/script.js', ['page' => 'https://example.test/page']);
+            ->with('CSP violation: script-src blocked https://evil.example/script.js on https://example.test/page', [
+                'page' => 'https://example.test/page',
+                'report' => $report,
+            ]);
+    }
+
+    public function test_logs_the_full_report_in_the_context(): void
+    {
+        $spy = Log::spy();
+        $spy->shouldReceive('channel')->andReturnSelf();
+
+        $report = [
+            'type' => 'csp-violation',
+            'age' => 10,
+            'url' => 'https://example.test/page',
+            'user_agent' => 'Mozilla/5.0',
+            'body' => [
+                'effectiveDirective' => 'script-src',
+                'blockedURL' => 'https://evil.example/script.js',
+                'sourceFile' => 'https://example.test/app.js',
+                'lineNumber' => 42,
+                'columnNumber' => 7,
+                'sample' => 'eval("...")',
+                'documentURL' => 'https://example.test/page',
+                'disposition' => 'enforce',
+            ],
+        ];
+
+        (new LogCspViolation)->handle(new CspViolationReceived($report));
+
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with(\Mockery::type('string'), [
+                'page' => 'https://example.test/page',
+                'report' => $report,
+            ]);
     }
 
     public function test_skips_logging_when_excluded(): void
