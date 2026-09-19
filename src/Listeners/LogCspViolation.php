@@ -29,9 +29,12 @@ class LogCspViolation
 
     /**
      * Determine whether a CSP violation report should be excluded from logging.
+     *
+     * A genuine report always carries an effective directive and a blocked URL,
+     * so anything missing either did not come from a browser.
      */
     protected function shouldExclude(CspViolationReport $report): bool
     {
-        return false;
+        return empty($report->body->effectiveDirective) || empty($report->body->blockedURL);
     }
 }
