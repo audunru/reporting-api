@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/audunru/reporting-api/compare/v2.1.0...v2.2.0) (2026-09-19)
+
+
+### Features
+
+* **csp:** log the full report and page URL for CSP violations ([#34](https://github.com/audunru/reporting-api/issues/34)) ([8272a98](https://github.com/audunru/reporting-api/commit/8272a986969968fc482df5b460600a5cd98221b9)), closes [#32](https://github.com/audunru/reporting-api/issues/32)
+
 # [2.1.0](https://github.com/audunru/reporting-api/compare/v2.0.0...v2.1.0) (2026-05-25)
 
 
