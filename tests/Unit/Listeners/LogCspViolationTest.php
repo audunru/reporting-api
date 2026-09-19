@@ -29,7 +29,6 @@ class LogCspViolationTest extends TestCase
         $spy->shouldHaveReceived('warning')
             ->once()
             ->with('CSP violation: script-src blocked https://evil.example/script.js on https://example.test/page', [
-                'page' => 'https://example.test/page',
                 'report' => $report,
             ]);
     }
@@ -61,7 +60,6 @@ class LogCspViolationTest extends TestCase
         $spy->shouldHaveReceived('warning')
             ->once()
             ->with(\Mockery::type('string'), [
-                'page' => 'https://example.test/page',
                 'report' => $report,
             ]);
     }
