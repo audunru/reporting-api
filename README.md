@@ -102,7 +102,9 @@ class MyCspViolationListener extends LogCspViolation
 
 ### Filtering noise with `shouldExclude()`
 
-Browser extensions routinely trigger CSP reports. Override `shouldExclude()` in a subclass to filter them out:
+The endpoint is public, so scanners posting arbitrary JSON reach it too. By default `LogCspViolation` excludes any report without both an `effectiveDirective` and a `blockedURL`, which a genuine browser report always carries.
+
+Browser extensions routinely trigger CSP reports as well. Override `shouldExclude()` in a subclass to filter them out, calling `parent::shouldExclude()` to keep the default filter:
 
 ```php
 // app/Listeners/MyCspViolationListener.php
@@ -121,6 +123,10 @@ class MyCspViolationListener extends LogCspViolation
 
     protected function shouldExclude(CspViolationReport $report): bool
     {
+        if (parent::shouldExclude($report)) {
+            return true;
+        }
+
         $blocked = $report->body->blockedURL ?? '';
 
         foreach (self::EXTENSION_SCHEMES as $scheme) {
