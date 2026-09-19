@@ -89,7 +89,7 @@ public function boot(): void
 }
 ```
 
-`LogCspViolation` logs CSP violations as `warning`. `LogReport` logs every other report type as `info`, with the full raw report in the log context. Neither is registered automatically.
+`LogCspViolation` logs CSP violations as `warning`. The message names the violated directive, the blocked URL and the page, and the log context holds the page under `page` and the full raw report under `report`. `LogReport` logs every other report type as `info`, with the full raw report in the log context. Neither is registered automatically.
 
 Both log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
 
