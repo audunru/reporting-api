@@ -1,6 +1,6 @@
 # AGENTS.md — reporting-api
 
-Laravel package that receives and handles W3C Reporting API and CSP violation reports. Dispatches Laravel events for each report type. Extracted from the [Skrapfanten](https://github.com/audunru/skrapfanten) application and expanded to support both the legacy `application/csp-report` format and the modern `application/reports+json` format.
+Laravel package that receives and handles W3C Reporting API and CSP violation reports. Dispatches Laravel events for each report type. Extracted from a Laravel application and expanded to support both the legacy `application/csp-report` format and the modern `application/reports+json` format.
 
 ## Package structure
 
@@ -84,9 +84,5 @@ Tests use Orchestra Testbench (not a full Laravel app). The service provider is 
 - PHPMD with `phpmd-ruleset.xml` (shared across all packages in the parent directory)
 
 ## Origin
-
-The controller and tests were extracted from `audunru/skrapfanten`:
-- `backend/app/Logging/Controllers/CspReportController.php`
-- `backend/tests/Feature/CspReportControllerTest.php`
 
 The original package was `audunru/csp-report` (CSP-only). It was renamed to `audunru/reporting-api` and expanded to handle all W3C Reporting API report types with an event-driven architecture.
