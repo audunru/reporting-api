@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a Cross-Origin Embedder Policy violation report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class CoepViolationReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $type,
         public readonly ?string $blockedURL,
@@ -19,10 +23,10 @@ class CoepViolationReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            type: $data['type'] ?? null,
-            blockedURL: $data['blockedURL'] ?? null,
-            destination: $data['destination'] ?? null,
-            disposition: $data['disposition'] ?? null,
+            type: self::string($data, 'type'),
+            blockedURL: self::string($data, 'blockedURL'),
+            destination: self::string($data, 'destination'),
+            disposition: self::string($data, 'disposition'),
         );
     }
 }

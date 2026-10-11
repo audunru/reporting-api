@@ -78,4 +78,42 @@ class CoopViolationReportTest extends TestCase
         $this->assertNull($report->body->lineNumber);
         $this->assertNull($report->body->columnNumber);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = CoopViolationReport::fromArray([
+            'type' => 'coop',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'type' => ['x'],
+                'disposition' => ['x'],
+                'effectivePolicy' => ['x'],
+                'previousResponseURL' => ['x'],
+                'nextResponseURL' => ['x'],
+                'referrer' => ['x'],
+                'property' => ['x'],
+                'sourceFile' => ['x'],
+                'lineNumber' => ['x'],
+                'columnNumber' => ['x'],
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = CoopViolationReport::fromArray(['type' => 'coop', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
 }

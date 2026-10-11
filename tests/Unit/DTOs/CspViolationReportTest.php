@@ -67,4 +67,43 @@ class CspViolationReportTest extends TestCase
         $this->assertNull($report->body->sourceFile);
         $this->assertNull($report->body->statusCode);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = CspViolationReport::fromArray([
+            'type' => 'csp-violation',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'blockedURL' => ['x'],
+                'columnNumber' => ['x'],
+                'disposition' => ['x'],
+                'documentURL' => ['x'],
+                'effectiveDirective' => ['x'],
+                'lineNumber' => ['x'],
+                'originalPolicy' => ['x'],
+                'referrer' => ['x'],
+                'sample' => ['x'],
+                'sourceFile' => ['x'],
+                'statusCode' => ['x'],
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = CspViolationReport::fromArray(['type' => 'csp-violation', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
 }

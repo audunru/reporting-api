@@ -2,9 +2,14 @@
 
 namespace audunru\ReportingApi\Tests\Feature;
 
+use audunru\ReportingApi\Contracts\ReportEvent;
+use audunru\ReportingApi\Events\CspViolationReceived;
 use audunru\ReportingApi\Events\GenericReportReceived;
+use audunru\ReportingApi\Listeners\LogCspViolation;
+use audunru\ReportingApi\Listeners\LogReport;
 use audunru\ReportingApi\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class GenericReportTest extends TestCase
 {
@@ -46,5 +51,28 @@ class GenericReportTest extends TestCase
             ->assertNoContent();
 
         Event::assertNotDispatched(GenericReportReceived::class);
+    }
+
+    public static function reportsWithWrongFieldTypes(): array
+    {
+        return [
+            'url is an array' => [['type' => 'deprecation', 'url' => ['x']]],
+            'age is a string' => [['type' => 'deprecation', 'age' => 'abc']],
+            'body is a string' => [['type' => 'deprecation', 'body' => 'x']],
+            'type is an array' => [['type' => ['x']]],
+            'csp body is a string' => [['type' => 'csp-violation', 'body' => 'x']],
+            'csp body field is an array' => [['type' => 'csp-violation', 'body' => ['blockedURL' => ['x']]]],
+        ];
+    }
+
+    #[DataProvider('reportsWithWrongFieldTypes')]
+    public function test_report_with_wrong_field_types_does_not_fail(array $report): void
+    {
+        $this->withoutExceptionHandling();
+        Event::listen(CspViolationReceived::class, LogCspViolation::class);
+        Event::listen(ReportEvent::class, LogReport::class);
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json'], json_encode([$report]))
+            ->assertNoContent();
     }
 }

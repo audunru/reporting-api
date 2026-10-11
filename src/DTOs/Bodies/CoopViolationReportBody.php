@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a Cross-Origin Opener Policy violation report sent by the browser to a reporting endpoint.
  * Models the union of navigation violation and access violation shapes.
@@ -10,6 +12,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class CoopViolationReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $type,
         public readonly ?string $disposition,
@@ -26,16 +30,16 @@ class CoopViolationReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            type: $data['type'] ?? null,
-            disposition: $data['disposition'] ?? null,
-            effectivePolicy: $data['effectivePolicy'] ?? null,
-            previousResponseURL: $data['previousResponseURL'] ?? null,
-            nextResponseURL: $data['nextResponseURL'] ?? null,
-            referrer: $data['referrer'] ?? null,
-            property: $data['property'] ?? null,
-            sourceFile: $data['sourceFile'] ?? null,
-            lineNumber: $data['lineNumber'] ?? null,
-            columnNumber: $data['columnNumber'] ?? null,
+            type: self::string($data, 'type'),
+            disposition: self::string($data, 'disposition'),
+            effectivePolicy: self::string($data, 'effectivePolicy'),
+            previousResponseURL: self::string($data, 'previousResponseURL'),
+            nextResponseURL: self::string($data, 'nextResponseURL'),
+            referrer: self::string($data, 'referrer'),
+            property: self::string($data, 'property'),
+            sourceFile: self::string($data, 'sourceFile'),
+            lineNumber: self::int($data, 'lineNumber'),
+            columnNumber: self::int($data, 'columnNumber'),
         );
     }
 }

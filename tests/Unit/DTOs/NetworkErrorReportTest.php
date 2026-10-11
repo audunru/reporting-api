@@ -65,4 +65,50 @@ class NetworkErrorReportTest extends TestCase
         $this->assertNull($report->body->responseHeaders);
         $this->assertNull($report->body->statusCode);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = NetworkErrorReport::fromArray([
+            'type' => 'network-error',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'sampling_fraction' => ['x'],
+                'elapsed_time' => ['x'],
+                'phase' => ['x'],
+                'type' => ['x'],
+                'server_ip' => ['x'],
+                'protocol' => ['x'],
+                'referrer' => ['x'],
+                'method' => ['x'],
+                'status_code' => ['x'],
+                'request_headers' => 'x',
+                'response_headers' => 'x',
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = NetworkErrorReport::fromArray(['type' => 'network-error', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_accepts_integer_sampling_fraction(): void
+    {
+        $report = NetworkErrorReport::fromArray(['type' => 'network-error', 'body' => ['sampling_fraction' => 1]]);
+
+        $this->assertSame(1.0, $report->body->samplingFraction);
+    }
 }

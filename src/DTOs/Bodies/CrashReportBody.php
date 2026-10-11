@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a crash report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class CrashReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $reason,
         public readonly ?string $stack,
@@ -19,10 +23,10 @@ class CrashReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            reason: $data['reason'] ?? null,
-            stack: $data['stack'] ?? null,
-            isTopLevel: $data['is_top_level'] ?? null,
-            visibilityState: $data['visibility_state'] ?? null,
+            reason: self::string($data, 'reason'),
+            stack: self::string($data, 'stack'),
+            isTopLevel: self::bool($data, 'is_top_level'),
+            visibilityState: self::string($data, 'visibility_state'),
         );
     }
 }

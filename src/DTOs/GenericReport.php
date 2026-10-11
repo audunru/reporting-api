@@ -17,11 +17,11 @@ class GenericReport extends Report
     public static function fromArray(array $data): static
     {
         return new static(
-            type: $data['type'] ?? 'unknown',
-            url: $data['url'] ?? null,
-            age: $data['age'] ?? null,
-            userAgent: $data['user_agent'] ?? null,
-            body: $data['body'] ?? null,
+            type: self::string($data, 'type') ?? 'unknown',
+            url: self::string($data, 'url'),
+            age: self::int($data, 'age'),
+            userAgent: self::string($data, 'user_agent'),
+            body: self::array($data, 'body'),
         );
     }
 }

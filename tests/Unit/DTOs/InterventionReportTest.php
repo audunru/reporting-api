@@ -47,4 +47,37 @@ class InterventionReportTest extends TestCase
         $this->assertNull($report->body->lineNumber);
         $this->assertNull($report->body->columnNumber);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = InterventionReport::fromArray([
+            'type' => 'intervention',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'id' => ['x'],
+                'message' => ['x'],
+                'sourceFile' => ['x'],
+                'lineNumber' => ['x'],
+                'columnNumber' => ['x'],
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = InterventionReport::fromArray(['type' => 'intervention', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
 }

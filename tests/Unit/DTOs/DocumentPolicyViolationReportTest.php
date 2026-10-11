@@ -50,4 +50,48 @@ class DocumentPolicyViolationReportTest extends TestCase
         $this->assertNull($report->body->columnNumber);
         $this->assertNull($report->body->message);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = DocumentPolicyViolationReport::fromArray([
+            'type' => 'document-policy-violation',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'featureId' => ['x'],
+                'disposition' => ['x'],
+                'sourceFile' => ['x'],
+                'lineNumber' => ['x'],
+                'columnNumber' => ['x'],
+                'message' => ['x'],
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = DocumentPolicyViolationReport::fromArray(['type' => 'document-policy-violation', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_falls_back_to_policy_id_when_feature_id_has_wrong_type(): void
+    {
+        $report = DocumentPolicyViolationReport::fromArray([
+            'type' => 'document-policy-violation',
+            'body' => ['featureId' => ['x'], 'policyId' => 'sync-xhr'],
+        ]);
+
+        $this->assertSame('sync-xhr', $report->body->featureId);
+    }
 }

@@ -44,4 +44,36 @@ class CoepViolationReportTest extends TestCase
         $this->assertNull($report->body->destination);
         $this->assertNull($report->body->disposition);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = CoepViolationReport::fromArray([
+            'type' => 'coep',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'type' => ['x'],
+                'blockedURL' => ['x'],
+                'destination' => ['x'],
+                'disposition' => ['x'],
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = CoepViolationReport::fromArray(['type' => 'coep', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
 }

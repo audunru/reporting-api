@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a Network Error Logging report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class NetworkErrorReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?float $samplingFraction,
         public readonly ?int $elapsedTime,
@@ -27,17 +31,17 @@ class NetworkErrorReportBody
     {
         // NEL spec uses snake_case keys for all body properties, unlike other report types
         return new static(
-            samplingFraction: $data['sampling_fraction'] ?? null,
-            elapsedTime: $data['elapsed_time'] ?? null,
-            phase: $data['phase'] ?? null,
-            type: $data['type'] ?? null,
-            serverIp: $data['server_ip'] ?? null,
-            protocol: $data['protocol'] ?? null,
-            referrer: $data['referrer'] ?? null,
-            method: $data['method'] ?? null,
-            requestHeaders: $data['request_headers'] ?? null,
-            responseHeaders: $data['response_headers'] ?? null,
-            statusCode: $data['status_code'] ?? null,
+            samplingFraction: self::float($data, 'sampling_fraction'),
+            elapsedTime: self::int($data, 'elapsed_time'),
+            phase: self::string($data, 'phase'),
+            type: self::string($data, 'type'),
+            serverIp: self::string($data, 'server_ip'),
+            protocol: self::string($data, 'protocol'),
+            referrer: self::string($data, 'referrer'),
+            method: self::string($data, 'method'),
+            requestHeaders: self::array($data, 'request_headers'),
+            responseHeaders: self::array($data, 'response_headers'),
+            statusCode: self::int($data, 'status_code'),
         );
     }
 }

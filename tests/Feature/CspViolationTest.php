@@ -3,6 +3,7 @@
 namespace audunru\ReportingApi\Tests\Feature;
 
 use audunru\ReportingApi\Events\CspViolationReceived;
+use audunru\ReportingApi\Listeners\LogCspViolation;
 use audunru\ReportingApi\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 
@@ -58,5 +59,14 @@ class CspViolationTest extends TestCase
             ->assertNoContent();
 
         Event::assertNotDispatched(CspViolationReceived::class);
+    }
+
+    public function test_legacy_format_with_wrong_body_type_does_not_fail(): void
+    {
+        $this->withoutExceptionHandling();
+        Event::listen(CspViolationReceived::class, LogCspViolation::class);
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/csp-report'], json_encode(['csp-report' => 'x']))
+            ->assertNoContent();
     }
 }
