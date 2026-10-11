@@ -23,7 +23,7 @@ reporting-api/
 │       ├── DocumentPolicyViolationReceived.php
 │       └── GenericReportReceived.php       — fallback for unrecognized types
 ├── config/
-│   └── reporting-api.php                   — path, throttle
+│   └── reporting-api.php                   — path, throttle, max_body_size
 ├── routes/
 │   └── reporting-api.php                   — POST /reports (CSRF-exempt, throttled)
 └── tests/
@@ -60,6 +60,7 @@ composer test-with-coverage  # Tests with Clover XML coverage output
 |---|---|---|
 | `REPORTING_API_PATH` | `/reports` | Endpoint URL path |
 | `REPORTING_API_THROTTLE` | `60,1` | Throttle (named limiter or `attempts,minutes`) |
+| `REPORTING_API_MAX_BODY_SIZE` | `65536` | Maximum request body size in bytes |
 
 ## How it works
 
@@ -71,7 +72,7 @@ composer test-with-coverage  # Tests with Clover XML coverage output
    - `application/csp-report` → decode JSON object, normalize to `{type, body}`, dispatch `CspViolationReceived`
    - anything else → 400 Bad Request
    - malformed items within a valid payload → silently skipped
-5. All responses are `204 No Content` on success, `400 Bad Request` for unsupported Content-Type
+5. All responses are `204 No Content` on success, `400 Bad Request` for unsupported Content-Type, `413 Payload Too Large` for a body larger than `max_body_size` (checked before decoding)
 6. Consumers register their own listeners in their application's `EventServiceProvider`
 
 ## Testing

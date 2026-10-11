@@ -23,6 +23,10 @@ class ReportingApiController extends Controller
 {
     public function report(Request $request): Response
     {
+        if (strlen($request->getContent()) > config('reporting-api.max_body_size', 65536)) {
+            return response('', Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
+        }
+
         $contentType = $request->header('Content-Type', '');
 
         if (str_contains($contentType, 'application/reports+json')) {
