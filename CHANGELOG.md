@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/audunru/reporting-api/compare/v3.0.3...v3.0.4) (2026-10-11)
+
+
+### Bug Fixes
+
+* map legacy CSP report keys to Reporting API names ([4728b46](https://github.com/audunru/reporting-api/commit/4728b46c2ad4f67da440159640d1e8df5f22f8eb)), closes [#47](https://github.com/audunru/reporting-api/issues/47)
+
 ## [3.0.3](https://github.com/audunru/reporting-api/compare/v3.0.2...v3.0.3) (2026-10-11)
 
 
