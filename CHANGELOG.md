@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/audunru/reporting-api/compare/v3.0.0...v3.0.1) (2026-10-11)
+
+
+### Bug Fixes
+
+* reject request bodies larger than max_body_size ([#48](https://github.com/audunru/reporting-api/issues/48)) ([0675d11](https://github.com/audunru/reporting-api/commit/0675d113efca23ff23a1c514c1b44dd7445340b2))
+
 # [3.0.0](https://github.com/audunru/reporting-api/compare/v2.2.0...v3.0.0) (2026-09-19)
 
 
