@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of an intervention report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class InterventionReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $id,
         public readonly ?string $message,
@@ -20,11 +24,11 @@ class InterventionReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            id: $data['id'] ?? null,
-            message: $data['message'] ?? null,
-            sourceFile: $data['sourceFile'] ?? null,
-            lineNumber: $data['lineNumber'] ?? null,
-            columnNumber: $data['columnNumber'] ?? null,
+            id: self::string($data, 'id'),
+            message: self::string($data, 'message'),
+            sourceFile: self::string($data, 'sourceFile'),
+            lineNumber: self::int($data, 'lineNumber'),
+            columnNumber: self::int($data, 'columnNumber'),
         );
     }
 }

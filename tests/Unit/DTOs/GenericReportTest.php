@@ -36,4 +36,21 @@ class GenericReportTest extends TestCase
         $this->assertNull($report->userAgent);
         $this->assertNull($report->body);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = GenericReport::fromArray([
+            'type' => ['x'],
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => 'x',
+        ]);
+
+        $this->assertSame('unknown', $report->type);
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        $this->assertNull($report->body);
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a CSP violation report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class CspViolationReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $blockedURL,
         public readonly ?int $columnNumber,
@@ -26,17 +30,17 @@ class CspViolationReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            blockedURL: $data['blockedURL'] ?? null,
-            columnNumber: $data['columnNumber'] ?? null,
-            disposition: $data['disposition'] ?? null,
-            documentURL: $data['documentURL'] ?? null,
-            effectiveDirective: $data['effectiveDirective'] ?? null,
-            lineNumber: $data['lineNumber'] ?? null,
-            originalPolicy: $data['originalPolicy'] ?? null,
-            referrer: $data['referrer'] ?? null,
-            sample: $data['sample'] ?? null,
-            sourceFile: $data['sourceFile'] ?? null,
-            statusCode: $data['statusCode'] ?? null,
+            blockedURL: self::string($data, 'blockedURL'),
+            columnNumber: self::int($data, 'columnNumber'),
+            disposition: self::string($data, 'disposition'),
+            documentURL: self::string($data, 'documentURL'),
+            effectiveDirective: self::string($data, 'effectiveDirective'),
+            lineNumber: self::int($data, 'lineNumber'),
+            originalPolicy: self::string($data, 'originalPolicy'),
+            referrer: self::string($data, 'referrer'),
+            sample: self::string($data, 'sample'),
+            sourceFile: self::string($data, 'sourceFile'),
+            statusCode: self::int($data, 'statusCode'),
         );
     }
 }

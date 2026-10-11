@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a deprecation report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class DeprecationReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $id,
         public readonly ?string $message,
@@ -21,12 +25,12 @@ class DeprecationReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            id: $data['id'] ?? null,
-            message: $data['message'] ?? null,
-            sourceFile: $data['sourceFile'] ?? null,
-            lineNumber: $data['lineNumber'] ?? null,
-            columnNumber: $data['columnNumber'] ?? null,
-            anticipatedRemoval: $data['anticipatedRemoval'] ?? null,
+            id: self::string($data, 'id'),
+            message: self::string($data, 'message'),
+            sourceFile: self::string($data, 'sourceFile'),
+            lineNumber: self::int($data, 'lineNumber'),
+            columnNumber: self::int($data, 'columnNumber'),
+            anticipatedRemoval: self::string($data, 'anticipatedRemoval'),
         );
     }
 }

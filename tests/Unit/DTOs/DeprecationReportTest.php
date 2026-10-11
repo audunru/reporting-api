@@ -52,4 +52,38 @@ class DeprecationReportTest extends TestCase
         $this->assertNull($report->body->columnNumber);
         $this->assertNull($report->body->anticipatedRemoval);
     }
+
+    public function test_from_array_ignores_values_with_wrong_types(): void
+    {
+        $report = DeprecationReport::fromArray([
+            'type' => 'deprecation',
+            'url' => ['x'],
+            'age' => 'abc',
+            'user_agent' => 1,
+            'body' => [
+                'id' => ['x'],
+                'message' => ['x'],
+                'sourceFile' => ['x'],
+                'lineNumber' => ['x'],
+                'columnNumber' => ['x'],
+                'anticipatedRemoval' => ['x'],
+            ],
+        ]);
+
+        $this->assertNull($report->url);
+        $this->assertNull($report->age);
+        $this->assertNull($report->userAgent);
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
+
+    public function test_from_array_ignores_body_with_wrong_type(): void
+    {
+        $report = DeprecationReport::fromArray(['type' => 'deprecation', 'body' => 'x']);
+
+        foreach (get_object_vars($report->body) as $value) {
+            $this->assertNull($value);
+        }
+    }
 }

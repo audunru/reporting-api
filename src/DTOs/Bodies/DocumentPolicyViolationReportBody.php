@@ -2,6 +2,8 @@
 
 namespace audunru\ReportingApi\DTOs\Bodies;
 
+use audunru\ReportingApi\DTOs\Concerns\ReadsTypedValues;
+
 /**
  * Body of a Document Policy violation report sent by the browser to a reporting endpoint.
  *
@@ -9,6 +11,8 @@ namespace audunru\ReportingApi\DTOs\Bodies;
  */
 class DocumentPolicyViolationReportBody
 {
+    use ReadsTypedValues;
+
     public function __construct(
         public readonly ?string $featureId,
         public readonly ?string $disposition,
@@ -21,12 +25,12 @@ class DocumentPolicyViolationReportBody
     public static function fromArray(array $data): static
     {
         return new static(
-            featureId: $data['featureId'] ?? $data['policyId'] ?? null, // spec: featureId; older browsers may send policyId
-            disposition: $data['disposition'] ?? null,
-            sourceFile: $data['sourceFile'] ?? null,
-            lineNumber: $data['lineNumber'] ?? null,
-            columnNumber: $data['columnNumber'] ?? null,
-            message: $data['message'] ?? null,
+            featureId: self::string($data, 'featureId') ?? self::string($data, 'policyId'), // spec: featureId; older browsers may send policyId
+            disposition: self::string($data, 'disposition'),
+            sourceFile: self::string($data, 'sourceFile'),
+            lineNumber: self::int($data, 'lineNumber'),
+            columnNumber: self::int($data, 'columnNumber'),
+            message: self::string($data, 'message'),
         );
     }
 }

@@ -23,10 +23,10 @@ class CoepViolationReport extends Report
     public static function fromArray(array $data): static
     {
         return new static(
-            url: $data['url'] ?? null,
-            age: $data['age'] ?? null,
-            userAgent: $data['user_agent'] ?? null,
-            body: CoepViolationReportBody::fromArray($data['body'] ?? []),
+            url: self::string($data, 'url'),
+            age: self::int($data, 'age'),
+            userAgent: self::string($data, 'user_agent'),
+            body: CoepViolationReportBody::fromArray(self::array($data, 'body') ?? []),
         );
     }
 }
