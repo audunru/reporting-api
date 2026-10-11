@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/audunru/reporting-api/compare/v3.0.2...v3.0.3) (2026-10-11)
+
+
+### Bug Fixes
+
+* ignore report fields with the wrong JSON type ([#51](https://github.com/audunru/reporting-api/issues/51)) ([09ac800](https://github.com/audunru/reporting-api/commit/09ac8003c7045333e976ea80a4a244282ba25ef6)), closes [#44](https://github.com/audunru/reporting-api/issues/44)
+
 ## [3.0.2](https://github.com/audunru/reporting-api/compare/v3.0.1...v3.0.2) (2026-10-11)
 
 
