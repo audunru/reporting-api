@@ -5,6 +5,7 @@ namespace audunru\ReportingApi\Tests\Unit\Listeners;
 use audunru\ReportingApi\DTOs\Report;
 use audunru\ReportingApi\Events\CspViolationReceived;
 use audunru\ReportingApi\Events\DeprecationReportReceived;
+use audunru\ReportingApi\Events\GenericReportReceived;
 use audunru\ReportingApi\Listeners\LogReport;
 use audunru\ReportingApi\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,21 @@ class LogReportTest extends TestCase
         $spy->shouldHaveReceived('warning')
             ->once()
             ->with('deprecation report received at https://example.test/page', \Mockery::type('array'));
+    }
+
+    public function test_replaces_line_breaks_in_message_values_with_spaces(): void
+    {
+        $spy = Log::spy();
+        $spy->shouldReceive('channel')->andReturnSelf();
+
+        (new LogReport)->handle(new GenericReportReceived([
+            'type' => "x\nfake",
+            'url' => "/a\n[2026-10-11 00:00:00] production.CRITICAL: Fake entry",
+        ]));
+
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with('x fake report received at /a [2026-10-11 00:00:00] production.CRITICAL: Fake entry', \Mockery::type('array'));
     }
 
     public function test_skips_csp_violations_by_default(): void

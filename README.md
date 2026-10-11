@@ -91,6 +91,8 @@ public function boot(): void
 
 `LogCspViolation` logs CSP violations as `warning`. The message names the violated directive, the blocked URL and the page, and the log context holds the full raw report under `report`. `LogReport` logs every other report type as `warning`, with the full raw report in the log context. Neither is registered automatically.
 
+The values in the log message come from the client, so both listeners replace control characters and line breaks in them with spaces. A report cannot add a fake line to the log. The raw report in the log context is not changed.
+
 Both log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
 
 ```php

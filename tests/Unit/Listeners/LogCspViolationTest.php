@@ -33,6 +33,29 @@ class LogCspViolationTest extends TestCase
             ]);
     }
 
+    public function test_replaces_line_breaks_in_message_values_with_spaces(): void
+    {
+        $spy = Log::spy();
+        $spy->shouldReceive('channel')->andReturnSelf();
+
+        $report = [
+            'type' => 'csp-violation',
+            'url' => "https://example.test/page\r\n[2026-10-11 00:00:00] production.CRITICAL: Fake entry",
+            'body' => [
+                'effectiveDirective' => "script-src\u{2028}fake",
+                'blockedURL' => "https://evil.example/script.js\nfake",
+            ],
+        ];
+
+        (new LogCspViolation)->handle(new CspViolationReceived($report));
+
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with('CSP violation: script-src fake blocked https://evil.example/script.js fake on https://example.test/page  [2026-10-11 00:00:00] production.CRITICAL: Fake entry', [
+                'report' => $report,
+            ]);
+    }
+
     public function test_logs_the_full_report_in_the_context(): void
     {
         $spy = Log::spy();
