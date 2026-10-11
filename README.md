@@ -207,7 +207,7 @@ Reporting-Endpoints: default="/reports"
 
 ## Configuration
 
-Publish the config file to customise the endpoint path, throttle limit and maximum body size:
+Publish the config file to customise the endpoint path, throttle limit, maximum body size and maximum number of reports:
 
 ```bash
 php artisan vendor:publish --tag=reporting-api-config
@@ -218,6 +218,7 @@ php artisan vendor:publish --tag=reporting-api-config
 | `path` | `REPORTING_API_PATH` | `/reports` | URL path of the report endpoint |
 | `throttle` | `REPORTING_API_THROTTLE` | `60,1` | Throttle value — named limiter or `attempts,minutes` |
 | `max_body_size` | `REPORTING_API_MAX_BODY_SIZE` | `65536` | Maximum request body size in bytes — larger bodies get `413 Payload Too Large` |
+| `max_reports` | `REPORTING_API_MAX_REPORTS` | `50` | Maximum number of reports in one `application/reports+json` request — requests with more reports get `413 Payload Too Large` |
 
 ## Reference
 

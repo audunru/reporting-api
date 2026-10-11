@@ -7,7 +7,7 @@ use audunru\ReportingApi\Events\GenericReportReceived;
 use audunru\ReportingApi\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 
-class BodySizeLimitTest extends TestCase
+class RequestLimitTest extends TestCase
 {
     public function test_default_max_body_size_is_sixty_four_kilobytes(): void
     {
@@ -58,6 +58,49 @@ class BodySizeLimitTest extends TestCase
 
         $body = json_encode([['type' => 'x']]);
         config()->set('reporting-api.max_body_size', strlen($body) - 1);
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json'], $body)
+            ->assertStatus(413);
+
+        Event::assertNotDispatched(GenericReportReceived::class);
+    }
+
+    public function test_default_max_reports_is_fifty(): void
+    {
+        $this->assertSame(50, config('reporting-api.max_reports'));
+    }
+
+    public function test_more_reports_than_default_limit_returns_payload_too_large(): void
+    {
+        Event::fake([GenericReportReceived::class]);
+
+        $body = json_encode(array_fill(0, 51, ['type' => 'x']));
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json'], $body)
+            ->assertStatus(413);
+
+        Event::assertNotDispatched(GenericReportReceived::class);
+    }
+
+    public function test_reports_at_limit_are_accepted(): void
+    {
+        Event::fake([GenericReportReceived::class]);
+        config()->set('reporting-api.max_reports', 2);
+
+        $body = json_encode(array_fill(0, 2, ['type' => 'x']));
+
+        $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json'], $body)
+            ->assertNoContent();
+
+        Event::assertDispatchedTimes(GenericReportReceived::class, 2);
+    }
+
+    public function test_one_report_over_configured_limit_returns_payload_too_large(): void
+    {
+        Event::fake([GenericReportReceived::class]);
+        config()->set('reporting-api.max_reports', 2);
+
+        $body = json_encode(array_fill(0, 3, ['type' => 'x']));
 
         $this->call('POST', '/reports', [], [], [], ['CONTENT_TYPE' => 'application/reports+json'], $body)
             ->assertStatus(413);
