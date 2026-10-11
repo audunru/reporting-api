@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/audunru/reporting-api/compare/v3.0.1...v3.0.2) (2026-10-11)
+
+
+### Bug Fixes
+
+* reject requests with more reports than max_reports ([#50](https://github.com/audunru/reporting-api/issues/50)) ([c049bb2](https://github.com/audunru/reporting-api/commit/c049bb2079cca94e098b21d9755527d246148fb3))
+
 ## [3.0.1](https://github.com/audunru/reporting-api/compare/v3.0.0...v3.0.1) (2026-10-11)
 
 
