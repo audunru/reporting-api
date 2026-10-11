@@ -1,3 +1,10 @@
+## [3.0.5](https://github.com/audunru/reporting-api/compare/v3.0.4...v3.0.5) (2026-10-11)
+
+
+### Bug Fixes
+
+* strip line breaks from report values in log messages ([e6894b8](https://github.com/audunru/reporting-api/commit/e6894b8970fea2e0658f784bf0afb0aea05d3c1a)), closes [#45](https://github.com/audunru/reporting-api/issues/45)
+
 ## [3.0.4](https://github.com/audunru/reporting-api/compare/v3.0.3...v3.0.4) (2026-10-11)
 
 
