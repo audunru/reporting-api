@@ -4,10 +4,13 @@ namespace audunru\ReportingApi\Listeners;
 
 use audunru\ReportingApi\DTOs\CspViolationReport;
 use audunru\ReportingApi\Events\CspViolationReceived;
+use audunru\ReportingApi\Listeners\Concerns\SanitizesLogValues;
 use Illuminate\Support\Facades\Log;
 
 class LogCspViolation
 {
+    use SanitizesLogValues;
+
     protected string $channel = 'stack';
 
     /**
@@ -21,7 +24,7 @@ class LogCspViolation
             return;
         }
 
-        Log::channel($this->channel)->warning("CSP violation: {$report->body->effectiveDirective} blocked {$report->body->blockedURL} on {$report->url}", [
+        Log::channel($this->channel)->warning("CSP violation: {$this->sanitizeForLog($report->body->effectiveDirective)} blocked {$this->sanitizeForLog($report->body->blockedURL)} on {$this->sanitizeForLog($report->url)}", [
             'report' => $event->getRawReport(),
         ]);
     }
