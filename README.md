@@ -243,7 +243,7 @@ All event classes implement `audunru\ReportingApi\Contracts\ReportEvent` and exp
 | Method | Returns |
 |--------|---------|
 | `getReport()` | Typed report DTO (e.g. `CspViolationReport`) |
-| `getRawReport()` | Raw report array as received from the browser |
+| `getRawReport()` | Raw report array as received from the browser. A legacy `application/csp-report` report uses the Reporting API field names (for example `blockedURL`, not `blocked-uri`) |
 
 ### Report DTOs
 
