@@ -48,6 +48,10 @@ class ReportingApiController extends Controller
             return response('', Response::HTTP_BAD_REQUEST);
         }
 
+        if (is_array($reports) && count($reports) > config('reporting-api.max_reports', 50)) {
+            return response('', Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
+        }
+
         if (is_array($reports)) {
             foreach ($reports as $report) {
                 if (! is_array($report) || ! isset($report['type'])) {

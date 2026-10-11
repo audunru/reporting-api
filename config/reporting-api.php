@@ -17,4 +17,10 @@ return [
      * with 413 Payload Too Large before they are decoded.
      */
     'max_body_size' => (int) env('REPORTING_API_MAX_BODY_SIZE', 65536),
+
+    /*
+     * The maximum number of reports in one application/reports+json request.
+     * Requests with more reports are rejected with 413 Payload Too Large.
+     */
+    'max_reports' => (int) env('REPORTING_API_MAX_REPORTS', 50),
 ];
