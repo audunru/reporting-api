@@ -21,6 +21,20 @@ use JsonException;
  */
 class ReportingApiController extends Controller
 {
+    private const LEGACY_CSP_KEYS = [
+        'blocked-uri' => 'blockedURL',
+        'column-number' => 'columnNumber',
+        'disposition' => 'disposition',
+        'document-uri' => 'documentURL',
+        'effective-directive' => 'effectiveDirective',
+        'line-number' => 'lineNumber',
+        'original-policy' => 'originalPolicy',
+        'referrer' => 'referrer',
+        'script-sample' => 'sample',
+        'source-file' => 'sourceFile',
+        'status-code' => 'statusCode',
+    ];
+
     public function report(Request $request): Response
     {
         if (strlen($request->getContent()) > config('reporting-api.max_body_size', 65536)) {
@@ -73,15 +87,37 @@ class ReportingApiController extends Controller
             return response('', Response::HTTP_BAD_REQUEST);
         }
 
-        if (is_array($payload) && isset($payload['csp-report'])) {
-            $normalized = [
+        if (is_array($payload) && is_array($payload['csp-report'] ?? null)) {
+            $body = $this->mapLegacyCspBody($payload['csp-report']);
+            $normalized = array_filter([
                 'type' => 'csp-violation',
-                'body' => $payload['csp-report'],
-            ];
+                'url' => $body['documentURL'] ?? null,
+                'body' => $body,
+            ], fn ($value) => $value !== null);
             event(new CspViolationReceived($normalized));
         }
 
         return response('', Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Rename the kebab-case keys of a legacy CSP report to the names that the Reporting API uses.
+     */
+    private function mapLegacyCspBody(array $legacy): array
+    {
+        $body = [];
+
+        foreach (self::LEGACY_CSP_KEYS as $legacyKey => $key) {
+            if (array_key_exists($legacyKey, $legacy)) {
+                $body[$key] = $legacy[$legacyKey];
+            }
+        }
+
+        if (! array_key_exists('effectiveDirective', $body) && array_key_exists('violated-directive', $legacy)) {
+            $body['effectiveDirective'] = $legacy['violated-directive'];
+        }
+
+        return $body;
     }
 
     private function makeEvent(array $report): object
