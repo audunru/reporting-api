@@ -1,3 +1,10 @@
+## [3.0.6](https://github.com/audunru/reporting-api/compare/v3.0.5...v3.0.6) (2026-10-24)
+
+
+### Bug Fixes
+
+* remove query strings and fragments from report URLs in log messages ([#55](https://github.com/audunru/reporting-api/issues/55)) ([642e0c8](https://github.com/audunru/reporting-api/commit/642e0c82951661c331bdd67eedd083822733f3c7))
+
 ## [3.0.5](https://github.com/audunru/reporting-api/compare/v3.0.4...v3.0.5) (2026-10-11)
 
 
