@@ -48,6 +48,36 @@ class LogReportTest extends TestCase
             ->with('x fake report received at /a [2026-10-11 00:00:00] production.CRITICAL: Fake entry', \Mockery::type('array'));
     }
 
+    public function test_removes_query_strings_and_fragments_from_urls_in_the_message(): void
+    {
+        $spy = Log::spy();
+        $spy->shouldReceive('channel')->andReturnSelf();
+
+        (new LogReport)->handle(new DeprecationReportReceived([
+            'type' => 'deprecation',
+            'url' => 'https://example.test/page?token=SECRET#section',
+            'body' => [
+                'id' => 'some-feature',
+                'message' => 'Feature is deprecated',
+                'sourceFile' => 'https://example.test/app.js?v=1',
+            ],
+        ]));
+
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with('deprecation report received at https://example.test/page', [
+                'report' => [
+                    'type' => 'deprecation',
+                    'url' => 'https://example.test/page?token=SECRET#section',
+                    'body' => [
+                        'id' => 'some-feature',
+                        'message' => 'Feature is deprecated',
+                        'sourceFile' => 'https://example.test/app.js?v=1',
+                    ],
+                ],
+            ]);
+    }
+
     public function test_skips_csp_violations_by_default(): void
     {
         $spy = Log::spy();

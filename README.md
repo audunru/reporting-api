@@ -93,6 +93,22 @@ public function boot(): void
 
 The values in the log message come from the client, so both listeners replace control characters and line breaks in them with spaces. A report cannot add a fake line to the log. The raw report in the log context is not changed.
 
+### Redacting URLs with `sanitizeUrlForLog()`
+
+A report URL is the full address of the page, so its query string and fragment can hold tokens, e-mail addresses or search words. Both listeners remove the query string and the fragment from the URLs in the log message. The raw report in the log context still holds the full URLs.
+
+If your application puts secrets in the path, override `sanitizeUrlForLog()` and call `parent::sanitizeUrlForLog()` to keep the default:
+
+```php
+class MyCspViolationListener extends LogCspViolation
+{
+    protected function sanitizeUrlForLog(?string $url): string
+    {
+        return preg_replace('#/password/reset/[^/]+#', '/password/reset/REDACTED', parent::sanitizeUrlForLog($url));
+    }
+}
+```
+
 Both log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
 
 ```php

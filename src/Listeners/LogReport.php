@@ -21,7 +21,7 @@ class LogReport
             return;
         }
 
-        Log::channel($this->channel)->warning("{$this->sanitizeForLog($report->type)} report received at {$this->sanitizeForLog($report->url)}", [
+        Log::channel($this->channel)->warning("{$this->sanitizeForLog($report->type)} report received at {$this->sanitizeUrlForLog($report->url)}", [
             'report' => $event->getRawReport(),
         ]);
     }

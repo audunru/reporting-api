@@ -24,7 +24,7 @@ class LogCspViolation
             return;
         }
 
-        Log::channel($this->channel)->warning("CSP violation: {$this->sanitizeForLog($report->body->effectiveDirective)} blocked {$this->sanitizeForLog($report->body->blockedURL)} on {$this->sanitizeForLog($report->url)}", [
+        Log::channel($this->channel)->warning("CSP violation: {$this->sanitizeForLog($report->body->effectiveDirective)} blocked {$this->sanitizeUrlForLog($report->body->blockedURL)} on {$this->sanitizeUrlForLog($report->url)}", [
             'report' => $event->getRawReport(),
         ]);
     }
