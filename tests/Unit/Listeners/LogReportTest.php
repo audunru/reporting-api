@@ -48,7 +48,7 @@ class LogReportTest extends TestCase
             ->with('x fake report received at /a [2026-10-11 00:00:00] production.CRITICAL: Fake entry', \Mockery::type('array'));
     }
 
-    public function test_removes_query_strings_and_fragments_from_urls(): void
+    public function test_removes_query_strings_and_fragments_from_urls_in_the_message(): void
     {
         $spy = Log::spy();
         $spy->shouldReceive('channel')->andReturnSelf();
@@ -68,11 +68,11 @@ class LogReportTest extends TestCase
             ->with('deprecation report received at https://example.test/page', [
                 'report' => [
                     'type' => 'deprecation',
-                    'url' => 'https://example.test/page',
+                    'url' => 'https://example.test/page?token=SECRET#section',
                     'body' => [
                         'id' => 'some-feature',
                         'message' => 'Feature is deprecated',
-                        'sourceFile' => 'https://example.test/app.js',
+                        'sourceFile' => 'https://example.test/app.js?v=1',
                     ],
                 ],
             ]);

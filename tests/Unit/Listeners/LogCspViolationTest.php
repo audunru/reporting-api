@@ -87,7 +87,7 @@ class LogCspViolationTest extends TestCase
             ]);
     }
 
-    public function test_removes_query_strings_and_fragments_from_urls(): void
+    public function test_removes_query_strings_and_fragments_from_urls_in_the_message(): void
     {
         $spy = Log::spy();
         $spy->shouldReceive('channel')->andReturnSelf();
@@ -108,11 +108,11 @@ class LogCspViolationTest extends TestCase
             ->with('CSP violation: script-src blocked https://evil.example/script.js on https://example.test/page', [
                 'report' => [
                     'type' => 'csp-violation',
-                    'url' => 'https://example.test/page',
+                    'url' => 'https://example.test/page?token=SECRET#section',
                     'body' => [
                         'effectiveDirective' => 'script-src',
-                        'blockedURL' => 'https://evil.example/script.js',
-                        'documentURL' => 'https://example.test/page',
+                        'blockedURL' => 'https://evil.example/script.js?email=a@example.test',
+                        'documentURL' => 'https://example.test/page?token=SECRET',
                         'sample' => 'eval("?token=")',
                     ],
                 ],
@@ -126,9 +126,9 @@ class LogCspViolationTest extends TestCase
 
         $listener = new class extends LogCspViolation
         {
-            protected function redactUrl(?string $url): string
+            protected function sanitizeUrlForLog(?string $url): string
             {
-                return preg_replace('#/reset/[^/]+#', '/reset/REDACTED', parent::redactUrl($url));
+                return preg_replace('#/reset/[^/]+#', '/reset/REDACTED', parent::sanitizeUrlForLog($url));
             }
         };
 
@@ -147,11 +147,11 @@ class LogCspViolationTest extends TestCase
             ->with('CSP violation: script-src blocked inline on https://example.test/reset/REDACTED', [
                 'report' => [
                     'type' => 'csp-violation',
-                    'url' => 'https://example.test/reset/REDACTED',
+                    'url' => 'https://example.test/reset/SECRET?email=a@example.test',
                     'body' => [
                         'effectiveDirective' => 'script-src',
                         'blockedURL' => 'inline',
-                        'documentURL' => 'https://example.test/reset/REDACTED',
+                        'documentURL' => 'https://example.test/reset/SECRET',
                     ],
                 ],
             ]);
