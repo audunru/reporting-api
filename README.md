@@ -91,7 +91,23 @@ public function boot(): void
 
 `LogCspViolation` logs CSP violations as `warning`. The message names the violated directive, the blocked URL and the page, and the log context holds the full raw report under `report`. `LogReport` logs every other report type as `warning`, with the full raw report in the log context. Neither is registered automatically.
 
-The values in the log message come from the client, so both listeners replace control characters and line breaks in them with spaces. A report cannot add a fake line to the log. The raw report in the log context is not changed.
+The values in the log message come from the client, so both listeners replace control characters and line breaks in them with spaces. A report cannot add a fake line to the log.
+
+### Redacting URLs with `redactUrl()`
+
+A report URL is the full address of the page, so its query string and fragment can hold tokens, e-mail addresses or search words. Both listeners remove the query string and the fragment from every URL before they log it: the URLs in the message, and every value in the raw report that is an absolute URL (`url`, `documentURL`, `blockedURL`, `sourceFile`, `referrer` and the like). Other values in the raw report are not changed.
+
+If your application puts secrets in the path, override `redactUrl()` and call `parent::redactUrl()` to keep the default:
+
+```php
+class MyCspViolationListener extends LogCspViolation
+{
+    protected function redactUrl(?string $url): string
+    {
+        return preg_replace('#/password/reset/[^/]+#', '/password/reset/REDACTED', parent::redactUrl($url));
+    }
+}
+```
 
 Both log to the `stack` channel by default. Override `protected string $channel` to redirect to a different channel:
 
