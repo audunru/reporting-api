@@ -22,4 +22,12 @@ trait SanitizesLogValues
     {
         return $this->sanitizeForLog(preg_replace('/[?#].*$/s', '', $url ?? ''));
     }
+
+    /**
+     * The raw report to put in the log context. Override to remove values that must not be logged.
+     */
+    protected function reportForLog(array $report): array
+    {
+        return $report;
+    }
 }

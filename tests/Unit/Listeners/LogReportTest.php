@@ -78,6 +78,36 @@ class LogReportTest extends TestCase
             ]);
     }
 
+    public function test_a_subclass_can_change_the_report_in_the_context(): void
+    {
+        $spy = Log::spy();
+        $spy->shouldReceive('channel')->andReturnSelf();
+
+        $listener = new class extends LogReport
+        {
+            protected function reportForLog(array $report): array
+            {
+                $report['url'] = $this->sanitizeUrlForLog($report['url']);
+
+                return $report;
+            }
+        };
+
+        $listener->handle(new DeprecationReportReceived([
+            'type' => 'deprecation',
+            'url' => 'https://example.test/reset?token=SECRET',
+        ]));
+
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with('deprecation report received at https://example.test/reset', [
+                'report' => [
+                    'type' => 'deprecation',
+                    'url' => 'https://example.test/reset',
+                ],
+            ]);
+    }
+
     public function test_skips_csp_violations_by_default(): void
     {
         $spy = Log::spy();
