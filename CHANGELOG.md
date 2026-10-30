@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/audunru/reporting-api/compare/v3.0.6...v3.1.0) (2026-10-30)
+
+
+### Features
+
+* let subclasses change the raw report in the log context ([#58](https://github.com/audunru/reporting-api/issues/58)) ([3f3006c](https://github.com/audunru/reporting-api/commit/3f3006c0893c215690140aabdd0a1b3b10037f87))
+
 ## [3.0.6](https://github.com/audunru/reporting-api/compare/v3.0.5...v3.0.6) (2026-10-24)
 
 
