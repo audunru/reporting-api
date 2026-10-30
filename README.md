@@ -95,7 +95,7 @@ The values in the log message come from the client, so both listeners replace co
 
 ### Redacting URLs with `sanitizeUrlForLog()`
 
-A report URL is the full address of the page, so its query string and fragment can hold tokens, e-mail addresses or search words. Both listeners remove the query string and the fragment from the URLs in the log message. The raw report in the log context still holds the full URLs.
+A report URL is the full address of the page, so its query string and fragment can hold tokens, e-mail addresses or search words. Both listeners remove the query string and the fragment from the URLs in the log message. The raw report in the log context still holds the full URLs (see `reportForLog()` below).
 
 If your application puts secrets in the path, override `sanitizeUrlForLog()` and call `parent::sanitizeUrlForLog()` to keep the default:
 
@@ -105,6 +105,26 @@ class MyCspViolationListener extends LogCspViolation
     protected function sanitizeUrlForLog(?string $url): string
     {
         return preg_replace('#/password/reset/[^/]+#', '/password/reset/REDACTED', parent::sanitizeUrlForLog($url));
+    }
+}
+```
+
+### Changing the log context with `reportForLog()`
+
+Both listeners put the result of `reportForLog()` in the log context. By default it returns the raw report with no change. To remove the query string and the fragment from every absolute URL in the raw report as well, override it:
+
+```php
+class MyCspViolationListener extends LogCspViolation
+{
+    protected function reportForLog(array $report): array
+    {
+        array_walk_recursive($report, function (mixed &$value): void {
+            if (is_string($value) && preg_match('#^[a-z][a-z0-9+.-]*://#i', $value)) {
+                $value = $this->sanitizeUrlForLog($value);
+            }
+        });
+
+        return $report;
     }
 }
 ```

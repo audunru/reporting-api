@@ -157,6 +157,46 @@ class LogCspViolationTest extends TestCase
             ]);
     }
 
+    public function test_a_subclass_can_change_the_report_in_the_context(): void
+    {
+        $spy = Log::spy();
+        $spy->shouldReceive('channel')->andReturnSelf();
+
+        $listener = new class extends LogCspViolation
+        {
+            protected function reportForLog(array $report): array
+            {
+                $report['body']['documentURL'] = $this->sanitizeUrlForLog($report['body']['documentURL']);
+
+                return $report;
+            }
+        };
+
+        $listener->handle(new CspViolationReceived([
+            'type' => 'csp-violation',
+            'url' => 'https://example.test/reset',
+            'body' => [
+                'effectiveDirective' => 'script-src',
+                'blockedURL' => 'inline',
+                'documentURL' => 'https://example.test/reset?token=SECRET',
+            ],
+        ]));
+
+        $spy->shouldHaveReceived('warning')
+            ->once()
+            ->with('CSP violation: script-src blocked inline on https://example.test/reset', [
+                'report' => [
+                    'type' => 'csp-violation',
+                    'url' => 'https://example.test/reset',
+                    'body' => [
+                        'effectiveDirective' => 'script-src',
+                        'blockedURL' => 'inline',
+                        'documentURL' => 'https://example.test/reset',
+                    ],
+                ],
+            ]);
+    }
+
     public function test_skips_logging_when_excluded(): void
     {
         $spy = Log::spy();
