@@ -258,6 +258,48 @@ php artisan vendor:publish --tag=reporting-api-config
 | `max_body_size` | `REPORTING_API_MAX_BODY_SIZE` | `65536` | Maximum request body size in bytes — larger bodies get `413 Payload Too Large` |
 | `max_reports` | `REPORTING_API_MAX_REPORTS` | `50` | Maximum number of reports in one `application/reports+json` request — requests with more reports get `413 Payload Too Large` |
 
+### Throttle
+
+The endpoint has no authentication, because browsers send reports without credentials. The throttle is thus the only limit on who can post reports. With the default value `60,1`, Laravel's `throttle` middleware allows 60 requests per minute for each client IP address.
+
+If your application runs behind a reverse proxy or a load balancer, you must configure trusted proxies. If you do not, Laravel sees the proxy's IP address for all requests, so all clients share one limit. Then one client can use up the limit and stop the reports from all real browsers, and on a busy site real reports alone can go over the limit. Configure trusted proxies in `bootstrap/app.php`:
+
+```php
+use Illuminate\Foundation\Configuration\Middleware;
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustProxies(at: [
+        '10.0.0.0/8', // the IP addresses of your proxy
+    ]);
+})
+```
+
+Trust only the IP addresses of your proxy. Use `at: '*'` only if clients can reach the application only through the proxy. If not, a client can send a fake `X-Forwarded-For` header and get a new limit for each request.
+
+To use different limits, define a [named rate limiter](https://laravel.com/docs/routing#rate-limiting), for example a per-IP limit together with a global limit, in `AppServiceProvider::boot()`:
+
+```php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+
+public function boot(): void
+{
+    RateLimiter::for('reporting-api', fn (Request $request) => [
+        Limit::perMinute(600),
+        Limit::perMinute(60)->by($request->ip()),
+    ]);
+}
+```
+
+Then set the throttle to the name of the limiter in `.env`:
+
+```
+REPORTING_API_THROTTLE=reporting-api
+```
+
+The global limit keeps the total number of reports below a known value. But a client that sends from many IP addresses can still use up the global limit, and then reports from all clients are stopped until the minute ends.
+
 ## Reference
 
 ### Dispatched events
