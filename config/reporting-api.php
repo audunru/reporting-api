@@ -8,7 +8,7 @@ return [
 
     /*
      * The throttle middleware value applied to the report endpoint.
-     * Can be a named rate limiter (e.g. 'log') or attempts:minutes format (e.g. '60,1').
+     * Can be a named rate limiter (e.g. 'log') or attempts,minutes format (e.g. '60,1').
      */
     'throttle' => env('REPORTING_API_THROTTLE', '60,1'),
 
